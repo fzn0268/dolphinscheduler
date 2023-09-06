@@ -31,7 +31,7 @@ export default {
     update_time: 'Update Time',
     operation: 'Operation',
     edit: 'Edit',
-    rename: 'Rename',
+    rename: 'Rename or update',
     download: 'Download',
     delete: 'Delete',
     yes: 'Yes',

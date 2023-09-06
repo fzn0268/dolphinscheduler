@@ -19,6 +19,10 @@ interface FileReq {
   file: any
 }
 
+interface FileOptionalReq {
+  file?: any
+}
+
 interface ResourceTypeReq {
   type: 'FILE' | 'UDF'
   programType?: string
@@ -121,6 +125,7 @@ interface ResourceViewRes {
 
 export {
   FileReq,
+  FileOptionalReq,
   ResourceTypeReq,
   UdfTypeReq,
   NameReq,

@@ -21,7 +21,7 @@ import {
   watch,
   getCurrentInstance
 } from 'vue'
-import { NForm, NFormItem, NInput } from 'naive-ui'
+import { NButton, NForm, NFormItem, NInput, NUpload } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/modal'
 import { useForm } from './use-form'
@@ -58,8 +58,18 @@ export default defineComponent({
       ctx.emit('update:show', false)
     }
 
+    const customRequest = ({ file }: any) => {
+      state.renameForm.name = file.name
+      state.renameForm.file = file.file
+      state.renameFormRef.validate()
+    }
+
     const handleFile = () => {
       handleRenameFile(ctx.emit, hideModal, resetForm)
+    }
+
+    const removeFile = () => {
+      state.renameForm.file = ''
     }
 
     const trim = getCurrentInstance()?.appContext.config.globalProperties.trim
@@ -73,7 +83,14 @@ export default defineComponent({
       }
     )
 
-    return { hideModal, handleFile, ...toRefs(state), trim }
+    return {
+      hideModal,
+      customRequest,
+      handleFile,
+      removeFile,
+      ...toRefs(state),
+      trim
+    }
   },
   render() {
     const { t } = useI18n()
@@ -104,6 +121,17 @@ export default defineComponent({
               placeholder={t('resource.file.enter_description_tips')}
               class='input-description'
             />
+          </NFormItem>
+          <NFormItem label={t('resource.file.upload_files')} path='file'>
+            <NUpload
+              v-model={[this.renameForm.file, 'value']}
+              customRequest={this.customRequest}
+              class='btn-upload'
+              max={1}
+              onRemove={this.removeFile}
+            >
+              <NButton>{t('resource.file.upload_files')}</NButton>
+            </NUpload>
           </NFormItem>
         </NForm>
       </Modal>

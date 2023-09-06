@@ -23,7 +23,8 @@ const defaultValue = (name = '', description = '') => ({
   id: -1,
   name,
   type: 'FILE',
-  description
+  description,
+  file: ''
 })
 
 export function useForm(name: string, description: string) {

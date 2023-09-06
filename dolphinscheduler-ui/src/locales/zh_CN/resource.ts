@@ -31,7 +31,7 @@ export default {
     update_time: '更新时间',
     operation: '操作',
     edit: '编辑',
-    rename: '重命名',
+    rename: '重命名或更新',
     download: '下载',
     delete: '删除',
     yes: '是',

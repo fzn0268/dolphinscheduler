@@ -32,7 +32,8 @@ import {
   ListReq,
   ViewResourceReq,
   ResourceIdReq,
-  UdfFuncReq
+  UdfFuncReq,
+  FileOptionalReq
 } from './types'
 
 export function queryResourceListPaging(
@@ -195,7 +196,7 @@ export function queryResource(
 }
 
 export function updateResource(
-  data: NameReq & ResourceTypeReq & IdReq & DescriptionReq,
+  data: NameReq & ResourceTypeReq & IdReq & DescriptionReq & FileOptionalReq,
   id: number
 ): any {
   return axios({

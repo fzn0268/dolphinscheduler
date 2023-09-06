@@ -33,12 +33,14 @@ export function useRename(state: any) {
     state.saving = true
 
     try {
-      await updateResource(
-        {
-          ...state.renameForm
-        },
-        state.renameForm.id
-      )
+      const formData = new FormData()
+      formData.append('id', state.renameForm.id)
+      formData.append('name', state.renameForm.name)
+      formData.append('type', state.renameForm.type)
+      formData.append('description', state.renameForm.description)
+      formData.append('file', state.renameForm.file)
+
+      await updateResource(formData as any, state.renameForm.id)
       window.$message.success(t('resource.file.success'))
       state.saving = false
       emit('updateList')
