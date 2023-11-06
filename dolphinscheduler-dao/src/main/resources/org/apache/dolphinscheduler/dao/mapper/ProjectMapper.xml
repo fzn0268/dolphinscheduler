@@ -87,12 +87,15 @@
         </include>
         ,
         u.user_name as user_name,
-        (SELECT COUNT(*) FROM t_ds_process_definition AS def WHERE def.project_code = p.code) AS def_count,
-        (SELECT COUNT(*) FROM t_ds_process_definition_log def, t_ds_process_instance inst WHERE def.code =
-        inst.process_definition_code and def.version = inst.process_definition_version AND def.project_code = p.code
-        AND inst.state=1 ) as inst_running_count
+        def.def_count,
+        def_inst.inst_running_count
         from t_ds_project p
         left join t_ds_user u on u.id=p.user_id
+        left join (SELECT project_code, COUNT(*) AS def_count FROM t_ds_process_definition group by project_code) def
+        on def.project_code = p.code
+        left join (SELECT def.project_code, COUNT(*) AS inst_running_count FROM t_ds_process_definition_log def,
+        t_ds_process_instance inst where def.code = inst.process_definition_code and def.version = inst.process_definition_version
+        AND inst.state=1 group by def.project_code) def_inst ON def_inst.project_code = p.code
         where 1=1
         <if test="projectsIds != null and projectsIds.size() > 0">
             and p.id  in
