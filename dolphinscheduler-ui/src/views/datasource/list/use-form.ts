@@ -45,6 +45,7 @@ export function useForm(id?: number) {
     password: '',
     database: '',
     connectType: '',
+    loadUrl: '',
     other: ''
   } as IDataSourceDetail
 
@@ -57,6 +58,7 @@ export function useForm(id?: number) {
     showAwsRegion: false,
     showConnectType: false,
     showPrincipal: false,
+    showLoadUrl: false,
     rules: {
       name: {
         trigger: ['input'],
@@ -122,6 +124,14 @@ export function useForm(id?: number) {
           }
         }
       },
+      loadUrl: {
+        trigger: ['input'],
+        validator() {
+          if (!state.detailForm.loadUrl && state.showLoadUrl) {
+            return new Error(t('datasource.starrocks_load_url_tips'))
+          }
+        }
+      },
       other: {
         trigger: ['input', 'blur'],
         validator() {
@@ -137,7 +147,7 @@ export function useForm(id?: number) {
     state.detailForm.port = options.previousPort || options.defaultPort
     state.detailForm.type = type
 
-    state.requiredDataBase = (type !== 'POSTGRESQL' && type !== 'ATHENA')
+    state.requiredDataBase = type !== 'POSTGRESQL' && type !== 'ATHENA'
 
     state.showHost = type !== 'ATHENA'
     state.showPort = type !== 'ATHENA'
@@ -153,6 +163,8 @@ export function useForm(id?: number) {
     } else {
       state.showPrincipal = false
     }
+
+    state.showLoadUrl = type === 'STARROCKS'
   }
 
   const changePort = async () => {
@@ -240,6 +252,11 @@ export const datasourceType: IDataBaseOptionKeys = {
     value: 'ATHENA',
     label: 'ATHENA',
     defaultPort: 0
+  },
+  STARROCKS: {
+    value: 'STARROCKS',
+    label: 'STARROCKS',
+    defaultPort: 9030
   }
 }
 

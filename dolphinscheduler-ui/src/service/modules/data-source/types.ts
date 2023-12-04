@@ -27,6 +27,7 @@ type IDataBase =
   | 'PRESTO'
   | 'REDSHIFT'
   | 'ATHENA'
+  | 'STARROCKS'
 
 interface IDataSource {
   id?: number
@@ -44,6 +45,7 @@ interface IDataSource {
   awsRegion?: string
   database?: string
   connectType?: string
+  loadUrl?: string
   other?: object
 }
 

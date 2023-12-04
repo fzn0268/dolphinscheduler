@@ -19,6 +19,8 @@ package org.apache.dolphinscheduler.plugin.task.datax;
 
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
+import java.net.URI;
+
 import com.alibaba.druid.sql.dialect.clickhouse.parser.ClickhouseStatementParser;
 import com.alibaba.druid.sql.dialect.hive.parser.HiveStatementParser;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
@@ -53,6 +55,10 @@ public class DataxUtils {
 
     public static final String DATAX_WRITER_PLUGIN_RDBMS = "rdbmswriter";
 
+    public static final String DATAX_READER_PLUGIN_STARROCKS = "starrocksreader";
+
+    public static final String DATAX_WRITER_PLUGIN_STARROCKS = "starrockswriter";
+
     public static String getReaderPluginName(DbType dbType) {
         switch (dbType) {
             case MYSQL:
@@ -65,6 +71,8 @@ public class DataxUtils {
                 return DATAX_READER_PLUGIN_SQLSERVER;
             case CLICKHOUSE:
                 return DATAX_READER_PLUGIN_CLICKHOUSE;
+            case STARROCKS:
+                return DATAX_READER_PLUGIN_STARROCKS;
             case HIVE:
             default:
                 return DATAX_READER_PLUGIN_RDBMS;
@@ -83,6 +91,8 @@ public class DataxUtils {
                 return DATAX_WRITER_PLUGIN_SQLSERVER;
             case CLICKHOUSE:
                 return DATAX_WRITER_PLUGIN_CLICKHOUSE;
+            case STARROCKS:
+                return DATAX_WRITER_PLUGIN_STARROCKS;
             case HIVE:
             default:
                 return DATAX_WRITER_PLUGIN_RDBMS;
@@ -143,6 +153,15 @@ public class DataxUtils {
             default:
                 return column;
         }
+    }
+
+    public static String getDatabaseFromJdbcUrl(String jdbcUrl) {
+        if (jdbcUrl == null) {
+            return jdbcUrl;
+        }
+
+        URI jdbcUri = URI.create(jdbcUrl.substring("jdbc:".length()));
+        return jdbcUri.getPath().substring(1);
     }
 
 }

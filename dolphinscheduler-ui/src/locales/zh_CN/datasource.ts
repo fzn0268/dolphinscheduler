@@ -61,5 +61,7 @@ export default {
   user_password_tips: '请输入密码',
   aws_region: 'AwsRegion',
   aws_region_tips: '请输入AwsRegion',
-  jdbc_format_tips: 'jdbc连接参数不是一个正确的JSON格式'
+  jdbc_format_tips: 'jdbc连接参数不是一个正确的JSON格式',
+  starrocks_load_url: 'StarRocks Load URL',
+  starrocks_load_url_tips: '请输入StarRocks Load URL，多个以","分开'
 }

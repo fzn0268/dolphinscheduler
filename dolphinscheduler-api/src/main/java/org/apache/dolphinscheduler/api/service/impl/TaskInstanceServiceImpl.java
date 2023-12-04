@@ -38,11 +38,11 @@ import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.ProjectMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskInstanceMapper;
+import org.apache.dolphinscheduler.plugin.task.api.enums.TaskExecutionStatus;
 import org.apache.dolphinscheduler.remote.command.TaskKillRequestCommand;
 import org.apache.dolphinscheduler.remote.command.TaskSavePointRequestCommand;
 import org.apache.dolphinscheduler.remote.processor.StateEventCallbackService;
 import org.apache.dolphinscheduler.remote.utils.Host;
-import org.apache.dolphinscheduler.plugin.task.api.enums.TaskExecutionStatus;
 import org.apache.dolphinscheduler.service.process.ProcessService;
 
 import java.util.Date;
@@ -52,6 +52,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +66,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
  */
 @Service
 public class TaskInstanceServiceImpl extends BaseServiceImpl implements TaskInstanceService {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskInstanceServiceImpl.class);
 
     @Autowired
     ProjectMapper projectMapper;
@@ -147,19 +151,22 @@ public class TaskInstanceServiceImpl extends BaseServiceImpl implements TaskInst
         PageInfo<Map<String, Object>> pageInfo = new PageInfo<>(pageNo, pageSize);
         int executorId = usersService.getUserIdByName(executorName);
         IPage<TaskInstance> taskInstanceIPage;
+        long timerBegin = System.currentTimeMillis();
         if (taskExecuteType == TaskExecuteType.STREAM) {
             // stream task without process instance
             taskInstanceIPage = taskInstanceMapper.queryStreamTaskInstanceListPaging(
-                page, project.getCode(), processDefinitionName, searchVal, taskName, executorId, statusArray, host, taskExecuteType, start, end
-            );
+                    page, project.getCode(), processDefinitionName, searchVal, taskName, executorId, statusArray, host,
+                    taskExecuteType, start, end);
         } else {
             taskInstanceIPage = taskInstanceMapper.queryTaskInstanceListPaging(
-                page, project.getCode(), processInstanceId, processInstanceName, searchVal, taskName, executorId, statusArray, host, taskExecuteType, start, end
-            );
+                    page, project.getCode(), processInstanceId, processInstanceName, searchVal, taskName, executorId,
+                    statusArray, host, taskExecuteType, start, end);
         }
+        logger.info("queryTaskInstanceListPaging cost: {}ms", System.currentTimeMillis() - timerBegin);
         Set<String> exclusionSet = new HashSet<>();
         exclusionSet.add(Constants.CLASS);
         exclusionSet.add("taskJson");
+        timerBegin = System.currentTimeMillis();
         List<TaskInstance> taskInstanceList = taskInstanceIPage.getRecords();
         List<Integer> executorIds =
                 taskInstanceList.stream().map(TaskInstance::getExecutorId).distinct().collect(Collectors.toList());
@@ -176,6 +183,7 @@ public class TaskInstanceServiceImpl extends BaseServiceImpl implements TaskInst
         pageInfo.setTotalList(CollectionUtils.getListByExclusion(taskInstanceIPage.getRecords(), exclusionSet));
         result.setData(pageInfo);
         putMsg(result, Status.SUCCESS);
+        logger.info("process result cost: {}ms", System.currentTimeMillis() - timerBegin);
         return result;
     }
 
@@ -234,11 +242,12 @@ public class TaskInstanceServiceImpl extends BaseServiceImpl implements TaskInst
         Result result = new Result();
 
         Project project = projectMapper.queryByCode(projectCode);
-        //check user access for project
-        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectCode,FORCED_SUCCESS);
+        // check user access for project
+        Map<String, Object> checkResult =
+                projectService.checkProjectAndAuth(loginUser, project, projectCode, FORCED_SUCCESS);
         Status status = (Status) checkResult.get(Constants.STATUS);
         if (status != Status.SUCCESS) {
-            putMsg(result,status);
+            putMsg(result, status);
             return result;
         }
 
@@ -262,11 +271,12 @@ public class TaskInstanceServiceImpl extends BaseServiceImpl implements TaskInst
         Result result = new Result();
 
         Project project = projectMapper.queryByCode(projectCode);
-        //check user access for project
-        Map<String, Object> checkResult = projectService.checkProjectAndAuth(loginUser, project, projectCode,FORCED_SUCCESS);
+        // check user access for project
+        Map<String, Object> checkResult =
+                projectService.checkProjectAndAuth(loginUser, project, projectCode, FORCED_SUCCESS);
         Status status = (Status) checkResult.get(Constants.STATUS);
         if (status != Status.SUCCESS) {
-            putMsg(result,status);
+            putMsg(result, status);
             return result;
         }
 

@@ -64,5 +64,8 @@ export default {
   user_password_tips: 'Please enter your password',
   aws_region: 'Aws Region',
   aws_region_tips: 'Please enter AwsRegion',
-  jdbc_format_tips: 'jdbc connection parameters is not a correct JSON format'
+  jdbc_format_tips: 'jdbc connection parameters is not a correct JSON format',
+  starrocks_load_url: 'StarRocks Load URL',
+  starrocks_load_url_tips:
+    'Please enter StarRocks Load URL, separated by "," if multiple'
 }
