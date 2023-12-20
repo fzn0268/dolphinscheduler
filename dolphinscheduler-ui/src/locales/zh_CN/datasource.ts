@@ -46,6 +46,8 @@ export default {
   ip_tips: '请输入IP主机名',
   port: '端口',
   port_tips: '请输入端口',
+  starrocks_load_url: 'StarRocks Load URL',
+  starrocks_load_url_tips: '请输入StarRocks Load URL，多个以","分开',
   database_name: '数据库名',
   database_name_tips: '请输入数据库名',
   oracle_connect_type: '服务名或SID',

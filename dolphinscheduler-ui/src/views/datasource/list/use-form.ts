@@ -37,6 +37,7 @@ export function useForm(id?: number) {
     name: '',
     note: '',
     host: '',
+    loadUrl: '',
     port: datasourceType['MYSQL'].defaultPort,
     principal: '',
     javaSecurityKrb5Conf: '',
@@ -60,6 +61,7 @@ export function useForm(id?: number) {
     requiredDataBase: true,
     showHost: true,
     showPort: true,
+    showLoadUrl: false,
     showAwsRegion: false,
     showCompatibleMode: false,
     showConnectType: false,
@@ -93,6 +95,14 @@ export function useForm(id?: number) {
           }
           if (!state.detailForm.port && state.showPort) {
             return new Error(t('datasource.port_tips'))
+          }
+        }
+      },
+      loadUrl: {
+        trigger: ['input'],
+        validator() {
+          if (!state.detailForm.loadUrl && state.showLoadUrl) {
+            return new Error(t('datasource.starrocks_load_url_tips'))
           }
         }
       },
@@ -238,6 +248,7 @@ export function useForm(id?: number) {
 
     state.showHost = type !== 'ATHENA'
     state.showPort = type !== 'ATHENA'
+    state.showLoadUrl = type === 'STARROCKS'
     state.showAwsRegion = type === 'ATHENA'
     state.showMode = ['AZURESQL', 'REDSHIFT'].includes(type)
 

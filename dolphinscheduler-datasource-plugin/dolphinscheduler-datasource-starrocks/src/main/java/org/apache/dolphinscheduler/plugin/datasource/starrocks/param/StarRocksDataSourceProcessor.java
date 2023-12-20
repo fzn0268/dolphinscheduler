@@ -70,6 +70,7 @@ public class StarRocksDataSourceProcessor extends AbstractDataSourceProcessor {
         starRocksDataSourceParamDTO.setUserName(connectionParams.getUser());
         starRocksDataSourceParamDTO.setDatabase(connectionParams.getDatabase());
         starRocksDataSourceParamDTO.setOther(connectionParams.getOther());
+        starRocksDataSourceParamDTO.setLoadUrl(connectionParams.getLoadUrl());
 
         String address = connectionParams.getAddress();
         String[] hostSeperator = address.split(Constants.DOUBLE_SLASH);
@@ -89,6 +90,7 @@ public class StarRocksDataSourceProcessor extends AbstractDataSourceProcessor {
 
         StarRocksConnectionParam starRocksConnectionParam = new StarRocksConnectionParam();
         starRocksConnectionParam.setJdbcUrl(jdbcUrl);
+        starRocksConnectionParam.setLoadUrl(starRocksDataSourceParamDTO.getLoadUrl());
         starRocksConnectionParam.setDatabase(starRocksDataSourceParamDTO.getDatabase());
         starRocksConnectionParam.setAddress(address);
         starRocksConnectionParam.setUser(starRocksDataSourceParamDTO.getUserName());

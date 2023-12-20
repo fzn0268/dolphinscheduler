@@ -22,6 +22,16 @@ import org.apache.dolphinscheduler.spi.enums.DbType;
 
 public class StarRocksDataSourceParamDTO extends BaseDataSourceParamDTO {
 
+    private String loadUrl;
+
+    public String getLoadUrl() {
+        return loadUrl;
+    }
+
+    public void setLoadUrl(String loadUrl) {
+        this.loadUrl = loadUrl;
+    }
+
     @Override
     public String toString() {
         return "StarRocksDataSourceParamDTO{" +
@@ -32,7 +42,8 @@ public class StarRocksDataSourceParamDTO extends BaseDataSourceParamDTO {
                 ", port=" + port +
                 ", database='" + database + '\'' +
                 ", userName='" + userName + '\'' +
-                ", other=" + other +
+                ", other=" + other + '\'' +
+                ", loadUrl=" + loadUrl +
                 '}';
     }
 

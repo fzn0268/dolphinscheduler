@@ -46,6 +46,9 @@ export default {
   ip_tips: 'Please enter IP',
   port: 'Port',
   port_tips: 'Please enter port',
+  starrocks_load_url: 'StarRocks Load URL',
+  starrocks_load_url_tips:
+    'Please enter StarRocks Load URL, separated by "," if multiple',
   database_name: 'Database Name',
   database_name_tips: 'Please enter database name',
   oracle_connect_type: 'ServiceName or SID',

@@ -154,6 +154,7 @@ const DetailModal = defineComponent({
       requiredDataBase,
       showHost,
       showPort,
+      showLoadUrl,
       showAwsRegion,
       showCompatibleMode,
       showConnectType,
@@ -266,6 +267,21 @@ const DetailModal = defineComponent({
                     placeholder={t('datasource.port_tips')}
                     on-blur={onChangePort}
                     style={{ width: '100%' }}
+                  />
+                </NFormItem>
+                <NFormItem
+                  v-show={showLoadUrl}
+                  label={t('datasource.starrocks_load_url')}
+                  path='loadUrl'
+                  show-require-mark
+                >
+                  <NInput
+                    allowInput={this.trim}
+                    class='input-loadurl'
+                    v-model={[detailForm.loadUrl, 'value']}
+                    type='text'
+                    maxlength={255}
+                    placeholder={t('datasource.starrocks_load_url_tips')}
                   />
                 </NFormItem>
                 <NFormItem
