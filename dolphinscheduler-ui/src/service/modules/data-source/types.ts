@@ -66,7 +66,7 @@ interface IDataSource {
   note?: string
   host?: string
   port?: number
-  loadUrl?: string
+  loadUrl?: string[]
   principal?: string
   javaSecurityKrb5Conf?: string
   loginUserKeytabUsername?: string

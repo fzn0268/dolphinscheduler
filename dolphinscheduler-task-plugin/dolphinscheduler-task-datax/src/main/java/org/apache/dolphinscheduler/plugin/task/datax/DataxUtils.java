@@ -28,6 +28,8 @@ import com.alibaba.druid.sql.dialect.presto.parser.PrestoStatementParser;
 import com.alibaba.druid.sql.dialect.sqlserver.parser.SQLServerStatementParser;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 
+import java.net.URI;
+
 public class DataxUtils {
 
     public static final String DATAX_READER_PLUGIN_MYSQL = "mysqlreader";
@@ -42,6 +44,8 @@ public class DataxUtils {
 
     public static final String DATAX_READER_PLUGIN_RDBMS = "rdbmsreader";
 
+    public static final String DATAX_READER_PLUGIN_STARROCKS = "starrocksreader";
+
     public static final String DATAX_WRITER_PLUGIN_MYSQL = "mysqlwriter";
 
     public static final String DATAX_WRITER_PLUGIN_POSTGRESQL = "postgresqlwriter";
@@ -55,6 +59,8 @@ public class DataxUtils {
 
     public static final String DATAX_WRITER_PLUGIN_RDBMS = "rdbmswriter";
 
+    public static final String DATAX_WRITER_PLUGIN_STARROCKS = "starrockswriter";
+
     public static String getReaderPluginName(DbType dbType) {
         switch (dbType) {
             case MYSQL:
@@ -67,6 +73,8 @@ public class DataxUtils {
                 return DATAX_READER_PLUGIN_SQLSERVER;
             case CLICKHOUSE:
                 return DATAX_READER_PLUGIN_CLICKHOUSE;
+            case STARROCKS:
+                return DATAX_READER_PLUGIN_STARROCKS;
             case HIVE:
             case PRESTO:
             default:
@@ -88,6 +96,8 @@ public class DataxUtils {
                 return DATAX_WRITER_PLUGIN_CLICKHOUSE;
             case DATABEND:
                 return DATAX_WRITER_PLUGIN_DATABEND;
+            case STARROCKS:
+                return DATAX_WRITER_PLUGIN_STARROCKS;
             case HIVE:
             case PRESTO:
             default:
@@ -98,6 +108,7 @@ public class DataxUtils {
     public static SQLStatementParser getSqlStatementParser(DbType dbType, String sql) {
         switch (dbType) {
             case MYSQL:
+            case STARROCKS:
                 return new MySqlStatementParser(sql);
             case POSTGRESQL:
                 return new PGSQLStatementParser(sql);
@@ -141,6 +152,7 @@ public class DataxUtils {
 
         switch (dbType) {
             case MYSQL:
+            case STARROCKS:
                 return String.format("`%s`", column);
             case POSTGRESQL:
                 return String.format("\"%s\"", column);
@@ -155,6 +167,15 @@ public class DataxUtils {
             default:
                 return column;
         }
+    }
+
+    public static String getDatabaseFromJdbcUrl(String jdbcUrl) {
+        if (jdbcUrl == null) {
+            return jdbcUrl;
+        }
+
+        URI jdbcUri = URI.create(jdbcUrl.substring("jdbc:".length()));
+        return jdbcUri.getPath().substring(1);
     }
 
 }

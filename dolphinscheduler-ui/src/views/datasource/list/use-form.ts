@@ -37,7 +37,7 @@ export function useForm(id?: number) {
     name: '',
     note: '',
     host: '',
-    loadUrl: '',
+    loadUrl: [],
     port: datasourceType['MYSQL'].defaultPort,
     principal: '',
     javaSecurityKrb5Conf: '',

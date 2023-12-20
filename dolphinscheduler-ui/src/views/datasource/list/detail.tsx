@@ -32,7 +32,8 @@ import {
   NInputNumber,
   NRadioGroup,
   NRadio,
-  NSpace
+  NSpace,
+  NDynamicTags
 } from 'naive-ui'
 import Modal from '@/components/modal'
 import { useI18n } from 'vue-i18n'
@@ -275,13 +276,14 @@ const DetailModal = defineComponent({
                   path='loadUrl'
                   show-require-mark
                 >
-                  <NInput
-                    allowInput={this.trim}
+                  <NDynamicTags
+                    input-props={{
+                      allowInput: this.trim,
+                      placeholder: t('datasource.starrocks_load_url_tips')
+                    }}
                     class='input-loadurl'
                     v-model={[detailForm.loadUrl, 'value']}
-                    type='text'
-                    maxlength={255}
-                    placeholder={t('datasource.starrocks_load_url_tips')}
+                    max={255}
                   />
                 </NFormItem>
                 <NFormItem

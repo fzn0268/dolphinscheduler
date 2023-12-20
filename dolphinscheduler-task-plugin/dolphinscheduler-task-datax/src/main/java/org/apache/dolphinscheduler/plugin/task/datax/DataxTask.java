@@ -265,18 +265,56 @@ public class DataxTask extends AbstractTask {
         reader.put("name", DataxUtils.getReaderPluginName(dataxTaskExecutionContext.getSourcetype()));
         reader.set("parameter", readerParam);
 
-        List<ObjectNode> writerConnArr = new ArrayList<>();
-        ObjectNode writerConn = JSONUtils.createObjectNode();
-        ArrayNode tableArr = writerConn.putArray("table");
-        tableArr.add(dataXParameters.getTargetTable());
-
-        writerConn.put("jdbcUrl",
-                DataSourceUtils.getJdbcUrl(DbType.valueOf(dataXParameters.getDtType()), dataTargetCfg));
-        writerConnArr.add(writerConn);
-
         ObjectNode writerParam = JSONUtils.createObjectNode();
         writerParam.put("username", dataTargetCfg.getUser());
         writerParam.put("password", decodePassword(dataTargetCfg.getPassword()));
+
+        final DbType dbType = DbType.valueOf(dataXParameters.getDtType());
+        if (dbType == DbType.STARROCKS) {
+            String jdbcUrl = DataSourceUtils.getJdbcUrl(dbType, dataTargetCfg);
+            String database = DataxUtils.getDatabaseFromJdbcUrl(jdbcUrl);
+            writerParam.put("jdbcUrl", jdbcUrl);
+            writerParam.put("database", database);
+            writerParam.put("table", dataXParameters.getTargetTable());
+            ObjectNode connParams = JSONUtils.parseObject(dataxTaskExecutionContext.getTargetConnectionParams());
+            String loadUrl = JSONUtils.findValue(connParams, "loadUrl");
+            if (loadUrl != null && !loadUrl.isEmpty()) {
+                ArrayNode loadUrlArr = JSONUtils.parseArray(loadUrl);
+                writerParam.set("loadUrl", loadUrlArr);
+            }
+            final ObjectNode loadProps = writerParam.putObject("loadProps");
+            // default use JSON format
+            loadProps.put("format", "JSON");
+            loadProps.put("strip_outer_array", "true");
+            final List<Property> localParams = dataXParameters.getLocalParams();
+            if (localParams != null && !localParams.isEmpty()) {
+                // 取load参数
+                // stream load参数需要load_前缀
+                for (Property param : localParams) {
+                    final String prop = param.getProp();
+                    final String value = param.getValue();
+                    if (value != null && !value.isEmpty()) {
+                        if ("maxBatchRows".equals(prop)) {
+                            writerParam.put(prop, Integer.parseInt(value));
+                        } else if ("maxBatchSize".equals(prop) || "flushInterval".equals(prop)) {
+                            writerParam.put(prop, Long.parseLong(value));
+                        } else if (prop != null && prop.startsWith("load_")) {
+                            loadProps.put(prop.substring("load_".length()), value);
+                        }
+                    }
+                }
+            }
+        } else {
+            List<ObjectNode> writerConnArr = new ArrayList<>();
+            ObjectNode writerConn = JSONUtils.createObjectNode();
+            ArrayNode tableArr = writerConn.putArray("table");
+            tableArr.add(dataXParameters.getTargetTable());
+
+            writerConn.put("jdbcUrl",
+                    DataSourceUtils.getJdbcUrl(DbType.valueOf(dataXParameters.getDtType()), dataTargetCfg));
+            writerConnArr.add(writerConn);
+            writerParam.putArray("connection").addAll(writerConnArr);
+        }
 
         String[] columns = parsingSqlColumnNames(dataxTaskExecutionContext.getSourcetype(),
                 dataxTaskExecutionContext.getTargetType(),
@@ -286,7 +324,6 @@ public class DataxTask extends AbstractTask {
         for (String column : columns) {
             columnArr.add(column);
         }
-        writerParam.putArray("connection").addAll(writerConnArr);
 
         if (CollectionUtils.isNotEmpty(dataXParameters.getPreStatements())) {
             ArrayNode preSqlArr = writerParam.putArray("preSql");
