@@ -102,6 +102,7 @@ public class DataxUtils {
     public static SQLStatementParser getSqlStatementParser(DbType dbType, String sql) {
         switch (dbType) {
             case MYSQL:
+            case STARROCKS:
                 return new MySqlStatementParser(sql);
             case POSTGRESQL:
                 return new PGSQLStatementParser(sql);
@@ -143,6 +144,7 @@ public class DataxUtils {
 
         switch (dbType) {
             case MYSQL:
+            case STARROCKS:
                 return String.format("`%s`", column);
             case POSTGRESQL:
                 return String.format("\"%s\"", column);
