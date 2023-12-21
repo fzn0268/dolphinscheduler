@@ -110,8 +110,8 @@ export function useTable(renameResource: IRenameFile, updateList: () => void) {
       render: (row) =>
         h(TableAction, {
           row,
-          onRenameResource: (id, name, description) =>
-            renameResource(id, name, description),
+          onRenameResource: (id, name, description, directory) =>
+            renameResource(id, name, description, directory),
           onUpdateList: () => updateList()
         }),
       ...COLUMN_WIDTH_CONFIG['operation'](4)

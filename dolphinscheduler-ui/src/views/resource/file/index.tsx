@@ -68,7 +68,8 @@ export default defineComponent({
     const renameInfo = reactive({
       id: -1,
       name: '',
-      description: ''
+      description: '',
+      directory: false
     })
 
     const paginationReactive = reactive({
@@ -134,10 +135,16 @@ export default defineComponent({
       handleShowModal(uploadShowRef)
     }
 
-    const handleRenameFile: IRenameFile = (id, name, description) => {
+    const handleRenameFile: IRenameFile = (
+      id,
+      name,
+      description,
+      directory
+    ) => {
       renameInfo.id = id
       renameInfo.name = name
       renameInfo.description = description
+      renameInfo.directory = directory
       handleShowModal(renameShowRef)
     }
 
@@ -356,6 +363,7 @@ export default defineComponent({
           id={this.renameInfo.id}
           name={this.renameInfo.name}
           description={this.renameInfo.description}
+          directory={this.renameInfo.directory}
           onUpdateList={this.updateList}
         />
       </NSpace>

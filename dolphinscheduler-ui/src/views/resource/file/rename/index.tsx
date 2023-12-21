@@ -43,6 +43,10 @@ const props = {
   description: {
     type: String as PropType<string>,
     default: ''
+  },
+  directory: {
+    type: Boolean as PropType<boolean>,
+    default: false
   }
 }
 
@@ -122,7 +126,11 @@ export default defineComponent({
               class='input-description'
             />
           </NFormItem>
-          <NFormItem label={t('resource.file.upload_files')} path='file'>
+          <NFormItem
+            label={t('resource.file.upload_files')}
+            path='file'
+            v-show={!this.$props.directory}
+          >
             <NUpload
               v-model={[this.renameForm.file, 'value']}
               customRequest={this.customRequest}

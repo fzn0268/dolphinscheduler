@@ -32,6 +32,8 @@ import { fileTypeArr } from '@/common/common'
 import { downloadResource, deleteResource } from '@/service/modules/resources'
 import { IRenameFile, IRtDisb } from '../types'
 import type { Router } from 'vue-router'
+import { useUserStore } from '@/store/user/user'
+import type { UserInfoRes } from '@/service/modules/users/types'
 
 const props = {
   show: {
@@ -55,12 +57,15 @@ export default defineComponent({
   setup(props, { emit }) {
     const { t } = useI18n()
     const router: Router = useRouter()
+    const userStore = useUserStore()
+    const ownFile =
+      (userStore.getUserInfo as UserInfoRes).userName === props.row.user_name
 
     const rtDisb: IRtDisb = (name, size) => {
       const i = name.lastIndexOf('.')
       const a = name.substring(i, name.length)
       const flag = _.includes(fileTypeArr, _.trimStart(a, '.'))
-      return !(flag && size < 1000000)
+      return !(flag && size < 1000000 && ownFile)
     }
 
     const handleEditFile = (item: { id: number }) => {
@@ -71,13 +76,19 @@ export default defineComponent({
       deleteResource(id).then(() => emit('updateList'))
     }
 
-    const handleRenameFile: IRenameFile = (id, name, description) => {
-      emit('renameResource', id, name, description)
+    const handleRenameFile: IRenameFile = (
+      id,
+      name,
+      description,
+      directory
+    ) => {
+      emit('renameResource', id, name, description, directory)
     }
 
     return {
       t,
       rtDisb,
+      ownFile,
       handleEditFile,
       handleDeleteFile,
       handleRenameFile,
@@ -118,11 +129,13 @@ export default defineComponent({
               <NButton
                 size='tiny'
                 type='info'
+                disabled={!this.ownFile}
                 onClick={() =>
                   this.handleRenameFile(
                     this.row.id,
                     this.row.name,
-                    this.row.description
+                    this.row.description,
+                    this.row.directory
                   )
                 }
                 style={{ marginRight: '-5px' }}
@@ -161,7 +174,13 @@ export default defineComponent({
           {{
             default: () => t('resource.file.delete'),
             trigger: () => (
-              <NButton size='tiny' type='error' circle class='btn-delete'>
+              <NButton
+                size='tiny'
+                type='error'
+                circle
+                class='btn-delete'
+                disabled={!this.ownFile}
+              >
                 <NPopconfirm
                   positive-text={t('resource.file.confirm')}
                   negative-text={t('resource.file.cancel')}

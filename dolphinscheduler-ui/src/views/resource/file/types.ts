@@ -19,7 +19,7 @@ export interface ResourceFileTableData {
   id: number
   name: string
   user_name: string
-  directory: string
+  directory: boolean
   file_name: string
   description: string
   size: number
@@ -31,7 +31,7 @@ export interface IEmit {
 }
 
 export interface IRenameFile {
-  (id: number, name: string, description: string): void
+  (id: number, name: string, description: string, directory: boolean): void
 }
 export interface IRtDisb {
   (name: string, size: number): boolean
