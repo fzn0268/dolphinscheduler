@@ -27,9 +27,12 @@ import org.apache.dolphinscheduler.server.master.rpc.MasterRPCServer;
 import org.apache.dolphinscheduler.server.master.runner.EventExecuteService;
 import org.apache.dolphinscheduler.server.master.runner.FailoverExecuteThread;
 import org.apache.dolphinscheduler.server.master.runner.MasterSchedulerBootstrap;
-import org.apache.dolphinscheduler.server.master.runner.task.TaskProcessorFactory;
+import org.apache.dolphinscheduler.server.master.runner.YarnTaskStateMonitorThread;
 import org.apache.dolphinscheduler.service.bean.SpringApplicationContext;
 import org.apache.dolphinscheduler.service.task.TaskPluginManager;
+
+import javax.annotation.PostConstruct;
+
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +42,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 @ComponentScan("org.apache.dolphinscheduler")
@@ -72,6 +73,9 @@ public class MasterServer implements IStoppable {
     private FailoverExecuteThread failoverExecuteThread;
 
     @Autowired
+    private YarnTaskStateMonitorThread yarnTaskStateMonitorThread;
+
+    @Autowired
     private MasterRPCServer masterRPCServer;
 
     public static void main(String[] args) {
@@ -99,6 +103,8 @@ public class MasterServer implements IStoppable {
 
         this.eventExecuteService.start();
         this.failoverExecuteThread.start();
+
+        this.yarnTaskStateMonitorThread.start();
 
         this.schedulerApi.start();
 

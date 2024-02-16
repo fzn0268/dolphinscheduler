@@ -38,7 +38,6 @@ public enum CommandType {
 
     GET_LOG_BYTES_RESPONSE,
 
-
     WORKER_REQUEST,
     MASTER_RESPONSE,
 
@@ -61,6 +60,16 @@ public enum CommandType {
      * task execute running ack, from master to worker
      */
     TASK_EXECUTE_RUNNING_ACK,
+
+    /**
+     * task info update, from worker to master
+     */
+    TASK_UPDATE,
+
+    /**
+     * task info update ack, from master to worker
+     */
+    TASK_UPDATE_ACK,
 
     /**
      * task execute response, from worker to master

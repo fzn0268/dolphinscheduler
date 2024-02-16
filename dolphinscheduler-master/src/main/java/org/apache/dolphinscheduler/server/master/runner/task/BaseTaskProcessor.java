@@ -335,6 +335,8 @@ public abstract class BaseTaskProcessor implements ITaskProcessor {
                 .taskType(taskInstance.getTaskType()).taskParams(taskInstance.getTaskParams()).build());
         Map<String, Property> propertyMap =
                 curingParamsService.paramParsingPreparation(taskInstance, baseParam, processInstance);
+        Map<String, String> definedParamsMap = new HashMap<>();
+        definedParamsMap.put("refer-yarn-execute-state", String.valueOf(masterConfig.isReferYarnExecuteState()));
         return TaskExecutionContextBuilder.get()
                 .buildTaskInstanceRelatedInfo(taskInstance)
                 .buildTaskDefinitionRelatedInfo(taskInstance.getTaskDefine())
@@ -345,6 +347,7 @@ public abstract class BaseTaskProcessor implements ITaskProcessor {
                 .buildK8sTaskRelatedInfo(k8sTaskExecutionContext)
                 .buildBusinessParamsMap(businessParamsMap)
                 .buildParamInfo(propertyMap)
+                .buildDefinedParamsMap(definedParamsMap)
                 .create();
     }
 

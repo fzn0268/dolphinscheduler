@@ -19,10 +19,12 @@ package org.apache.dolphinscheduler.server.master.service;
 
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.NodeType;
+import org.apache.dolphinscheduler.common.exception.BaseException;
 import org.apache.dolphinscheduler.common.model.Server;
 import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
 import org.apache.dolphinscheduler.dao.entity.ProcessInstance;
 import org.apache.dolphinscheduler.dao.entity.TaskInstance;
+import org.apache.dolphinscheduler.plugin.task.api.TaskConstants;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.api.enums.TaskExecutionStatus;
 import org.apache.dolphinscheduler.remote.command.TaskKillRequestCommand;
@@ -38,6 +40,7 @@ import org.apache.dolphinscheduler.server.master.runner.task.TaskProcessorFactor
 import org.apache.dolphinscheduler.service.log.LogClient;
 import org.apache.dolphinscheduler.service.process.ProcessService;
 import org.apache.dolphinscheduler.service.registry.RegistryClient;
+import org.apache.dolphinscheduler.service.storage.impl.HadoopUtils;
 import org.apache.dolphinscheduler.service.utils.LoggerUtils;
 import org.apache.dolphinscheduler.service.utils.ProcessUtils;
 
@@ -270,6 +273,23 @@ public class MasterFailoverService {
         if (taskInstance.getState() != null && taskInstance.getState().isFinished()) {
             // The task is already finished, so we don't need to failover this task instance
             return false;
+        }
+        // 如果是YARN任务且参考YARN状态，check whether YARN RM need failover
+        String appIds = taskInstance.getAppLink();
+        if (appIds != null && masterConfig.isReferYarnExecuteState()) {
+            if (taskInstance.getState() != null && !taskInstance.getState().isFailure()) {
+                final String[] split = appIds.split(TaskConstants.COMMA);
+                String appId = split[split.length - 1];
+                try {
+                    final TaskExecutionStatus applicationStatus = HadoopUtils.getInstance().getApplicationStatus(appId);
+                    if (applicationStatus != null && !applicationStatus.isFailure()) {
+                        return false;
+                    }
+                } catch (BaseException e) {
+                    LOGGER.error("Get yarn application app id [{}}] status failed, " +
+                            "cannot confirm status of taskInstanceId[{}]", appId, taskInstance.getId(), e);
+                }
+            }
         }
         return true;
     }

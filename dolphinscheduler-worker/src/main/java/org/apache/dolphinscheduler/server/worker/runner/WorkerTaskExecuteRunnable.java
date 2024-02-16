@@ -21,7 +21,7 @@ import static org.apache.dolphinscheduler.common.constants.Constants.SINGLE_SLAS
 
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.WarningType;
-import org.apache.dolphinscheduler.common.utils.DateUtils;
+import org.apache.dolphinscheduler.common.exception.BaseException;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.task.api.AbstractTask;
 import org.apache.dolphinscheduler.plugin.task.api.TaskCallBack;
@@ -40,6 +40,7 @@ import org.apache.dolphinscheduler.server.worker.rpc.WorkerMessageSender;
 import org.apache.dolphinscheduler.server.worker.utils.TaskExecutionCheckerUtils;
 import org.apache.dolphinscheduler.service.alert.AlertClientService;
 import org.apache.dolphinscheduler.service.storage.StorageOperate;
+import org.apache.dolphinscheduler.service.storage.impl.HadoopUtils;
 import org.apache.dolphinscheduler.service.task.TaskPluginManager;
 import org.apache.dolphinscheduler.service.utils.CommonUtils;
 import org.apache.dolphinscheduler.service.utils.LoggerUtils;
@@ -50,6 +51,7 @@ import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -250,8 +252,33 @@ public abstract class WorkerTaskExecuteRunnable implements Runnable {
         logger.info("Success send alert");
     }
 
+    private TaskExecutionStatus getYarnStatus() {
+        final Map<String, String> definedParams = taskExecutionContext.getDefinedParams();
+        if (definedParams != null) {
+            boolean referYarnExecuteState =
+                    Boolean.parseBoolean(definedParams.getOrDefault("refer-yarn-execute-state", "false"));
+            if (referYarnExecuteState) {
+                final String appIds = taskExecutionContext.getAppIds();
+                if (appIds != null && !appIds.isEmpty()) {
+                    final String[] split = appIds.split(TaskConstants.COMMA);
+                    final String appId = split[split.length - 1];
+                    try {
+                        return HadoopUtils.getInstance().getApplicationStatus(appId);
+                    } catch (BaseException e) {
+                        logger.error("Failed to get YARN status for task {}(applicationId:{})",
+                                taskExecutionContext.getTaskName(), appId);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     protected void sendTaskResult() {
-        taskExecutionContext.setCurrentExecutionStatus(task.getExitStatus());
+        taskExecutionContext.setCurrentExecutionStatus(getYarnStatus());
+        if (taskExecutionContext.getCurrentExecutionStatus() == null) {
+            taskExecutionContext.setCurrentExecutionStatus(task.getExitStatus());
+        }
         taskExecutionContext.setEndTime(new Date());
         taskExecutionContext.setProcessId(task.getProcessId());
         taskExecutionContext.setAppIds(task.getAppIds());

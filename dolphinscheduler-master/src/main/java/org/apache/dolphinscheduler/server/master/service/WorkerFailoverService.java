@@ -172,7 +172,8 @@ public class WorkerFailoverService {
                     .buildProcessDefinitionRelatedInfo(processInstance.getProcessDefinition())
                     .create();
 
-            if (masterConfig.isKillYarnJobWhenTaskFailover()) {
+            // 如果是YARN任务且参考YARN状态，不KillYarnJob
+            if (masterConfig.isKillYarnJobWhenTaskFailover() && !masterConfig.isReferYarnExecuteState()) {
                 // only kill yarn job if exists , the local thread has exited
                 LOGGER.info("TaskInstance failover begin kill the task related yarn job");
                 ProcessUtils.killYarnJob(logClient, taskExecutionContext);
@@ -224,6 +225,11 @@ public class WorkerFailoverService {
         if (taskInstance.getState() != null && taskInstance.getState().isFinished()) {
             // The taskInstance is already finished, doesn't need to failover
             LOGGER.info("The task is already finished, doesn't need to failover");
+            return false;
+        }
+        if (masterConfig.isReferYarnExecuteState() && taskInstance.getAppLink() != null &&
+                !taskInstance.getAppLink().isEmpty()) {
+            // 如果是YARN任务且参考YARN状态，不做容错
             return false;
         }
         if (!needFailoverWorkerStartTime.isPresent()) {

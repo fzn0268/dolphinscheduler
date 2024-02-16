@@ -157,6 +157,11 @@ public class TaskExecutionContextBuilder {
         return this;
     }
 
+    public TaskExecutionContextBuilder buildDefinedParamsMap(Map<String, String> definedParamsMap) {
+        taskExecutionContext.setDefinedParams(definedParamsMap);
+        return this;
+    }
+
     /**
      * create
      *
